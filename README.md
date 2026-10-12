@@ -113,7 +113,8 @@ npm run dist       # 产物在 release/1.0.0/
 - **`npm install` 卡在下载 Electron** —— 仓库里带了一个 `.npmrc`，已经把
   Electron 二进制指向 npmmirror。**如果你能直连 GitHub，删掉 `.npmrc` 会更快。**
 - **打包报 `Cannot create symbolic link ...`** —— 打开 Windows「设置 → 系统 → 开发者模式」
-  再重跑，或者以管理员身份运行终端。
+  再重跑，或者以管理员身份运行终端。**这是 `electron-builder` 自己的问题，跟本项目无关**；
+  没有管理员权限时还有一套绕行办法，见下面[常见问题](#常见问题)里的同名条目。
 
 ### 卸载
 
@@ -778,13 +779,40 @@ npm run probe-icons     # 先看图标到底读到没有
 
 **打包时报 `Cannot create symbolic link ... libcrypto.dylib`？**
 这是 `electron-builder` 解压它自带的 `winCodeSign` 时踩到的，**跟本项目的代码和 koffi 都无关**：
-解压包里含 macOS 的符号链接，Windows 没开「开发者模式」就没有建符号链接的权限。两条路：
+那个包里含两个 macOS 的 `.dylib` **符号链接**，Windows 账户若没有
+`SeCreateSymbolicLinkPrivilege`（没开「开发者模式」的普通账户就没有），
+7-Zip 建不了链接就返回非零退出码，整个打包中断。
+
+而 `winCodeSign` 只为 `rcedit` 服务 —— 也就是**给 exe 写图标和版本信息**那一步。所以两条路：
+
+**① 推荐：开「开发者模式」**（设置 → 系统 → 开发者模式）。它会把这个权限授予普通账户，
+之后 `npm run dist` 直接就能过。
+
+**② 没有管理员权限时：绕开 `rcedit`，打包完手动补上这一步**
 
 ```bash
-# 1) 打开 Windows「设置 → 系统 → 开发者模式」，然后重跑
-# 2) 或者临时把这个环节关掉（只影响签名/改可执行文件属性，本地自测够用）
-npx electron-builder --win --config.win.signAndEditExecutable=false
+# 1) 只打出免安装目录，跳过 rcedit（于是完全不会去碰 winCodeSign）
+npx electron-builder --win --x64 --dir \
+  --config.win.signAndEditExecutable=false \
+  --config.directories.output=release_x
+
+# 2) 手工解出 rcedit —— 排除掉含符号链接的 darwin 目录，只取 Windows 要用的部分
+mkdir -p _wcs
+find "$LOCALAPPDATA/electron-builder/Cache/winCodeSign" -name '*.7z' | head -1 \
+  | xargs node_modules/7zip-bin/win/x64/7za.exe x -bd -y -o_wcs -xr'!darwin'
+
+# 3) 给主 exe 补图标 + 版本信息（.ico 由 build/icon.png 转出，任意工具皆可）
+_wcs/rcedit-x64.exe "release_x/win-unpacked/奶球.exe" \
+  --set-icon build/icon.ico \
+  --set-version-string ProductName "奶球" \
+  --set-file-version 1.0.0.0 --set-product-version 1.0.0.0
+
+# 4) 拿已经打好的目录出安装包
+npx electron-builder --win nsis portable --x64 --prepackaged release_x/win-unpacked \
+  --config.win.signAndEditExecutable=false --config.directories.output=release_out
 ```
+
+`winCodeSign` 的 `.7z` 在第一次打包失败时就已经留在缓存里了，所以第 2 步不需要联网。
 
 **别人 clone 下来装依赖要不要装 Visual Studio / node-gyp？**
 不要。koffi 走的是预编译二进制（`optionalDependencies` 里的 `@koromix/koffi-win32-x64`），
