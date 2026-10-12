@@ -85,7 +85,7 @@
           ]
         }
       ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "naiqiu-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -96,10 +96,10 @@
       "createStartMenuShortcut": true,
       "shortcutName": "奶球",
       "deleteAppDataOnUninstall": true,
-      "artifactName": "${productName}-${version}-${arch}-setup.${ext}"
+      "artifactName": "naiqiu-${version}-${arch}-setup.${ext}"
     },
     "portable": {
-      "artifactName": "${productName}-${version}-portable.${ext}"
+      "artifactName": "naiqiu-${version}-portable.${ext}"
     }
   },
   "dependencies": {

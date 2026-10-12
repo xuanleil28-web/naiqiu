@@ -1,11 +1,14 @@
 # ---- 依赖与构建产物 ----
 node_modules/
 dist/
-release/
-release_check/
-_asartest_out/
-_asartest_out2/
 *.tsbuildinfo
+
+# electron-builder 的输出目录。全部忽略，避免把几十 MB 的安装包提交进仓库：
+#   release/               默认输出
+#   release_build/         手动指定输出时的临时目录
+#   release_out/           只跑打包目标（nsis / portable）时的输出
+#   release_x/ release_test/  调试用
+release*/
 
 # ---- 日志与系统文件 ----
 *.log
@@ -17,7 +20,7 @@ Thumbs.db
 .vscode/
 .idea/
 
-# ---- 开发过程中的临时脚本与产物（不参与开源）----
+# ---- 开发过程中的临时产物（不参与开源）----
 # 这几个是当初把原图平面化成贴图时的一次性处理脚本，
 # 留在这里只是方便本地复现，不属于项目本身。
 _analyze.py
@@ -27,3 +30,6 @@ _dbg.py
 _dbg2.py
 _preview.py
 _inspect/
+_asartest_out/
+_asartest_out2/
+_wcs/
