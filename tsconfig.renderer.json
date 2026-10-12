@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "none",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": [],
+    "rootDir": "src/renderer",
+    "outDir": "dist/renderer"
+  },
+  "include": ["src/renderer/**/*.ts"]
+}

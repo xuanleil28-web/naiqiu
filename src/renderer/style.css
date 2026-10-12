@@ -1,0 +1,274 @@
+/* 整块画布必须完全透明，否则透明窗口会糊上一层黑或者白 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  /* 挂件类窗口：禁掉选中和原生拖拽，避免误触 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  cursor: default;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+#stage {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+
+/* ---------------------------------------------------------------- 设置面板 */
+/* 面板浮在用户桌面之上，所以用不透明底 + 描边 + 阴影保证任何壁纸下都读得清 */
+.menu {
+  position: fixed;
+  z-index: 10;
+  box-sizing: border-box;
+  width: 232px;
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  color: #1f1f1f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.menu-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f1f1f;
+}
+
+.menu-close {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #8a8a8a;
+  font-size: 16px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.menu-close:hover {
+  background: #f0f0f0;
+  color: #333333;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.field-label {
+  color: #444444;
+}
+
+.field-value {
+  color: #7a7a7a;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 滑轨：自己画，避免各版本 Chromium 默认样式差异 */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #e4e4e4;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 50%;
+  background: #d1462f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.slider:active::-webkit-slider-thumb {
+  background: #b63a25;
+}
+
+/* 面板里的动作按钮（播放笑声等）：中性灰底，跟「让它动起来」的强调色区分开 */
+.menu-action {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 7px 0;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 8px;
+  background: #f5f6f8;
+  color: #333333;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.menu-action:hover {
+  background: #ebedf0;
+}
+
+.menu-action:active {
+  background: #e0e3e7;
+  transform: translateY(1px);
+}
+
+/* 正在播放态：按钮切成「停止大笑」，用小球同色系的暖黄，一眼能看出在响 */
+.menu-action.is-playing {
+  border-color: rgba(198, 138, 30, 0.5);
+  background: rgba(239, 201, 108, 0.24);
+  color: #8a5d10;
+}
+
+.menu-action.is-playing:hover {
+  background: rgba(239, 201, 108, 0.34);
+}
+
+/* 音频文件缺失时把按钮染成告警色，配合下面的说明文字 */
+.menu-action.is-missing {
+  border-color: rgba(209, 70, 47, 0.35);
+  background: rgba(209, 70, 47, 0.08);
+  color: #b63a25;
+}
+
+.menu-hint {
+  margin: 0 0 8px;
+  color: #b63a25;
+  font-size: 11px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.menu-hint[hidden] {
+  display: none;
+}
+
+.menu-hint code {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------ 台球模式勾选行 */
+/* 整行是一块可点的方块，比裸复选框好按；也用底色把「这是一项开关」讲清楚 */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fafbfc;
+  color: #333333;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.check-row:hover {
+  background: #f1f3f6;
+}
+
+/* 勾上之后整行点亮，跟「正在播放」共用同一套暖色 —— 模式开着要一眼看得出来 */
+.check-row:has(input:checked) {
+  border-color: rgba(198, 138, 30, 0.5);
+  background: rgba(239, 201, 108, 0.22);
+  color: #8a5d10;
+}
+
+.check-row input[type="checkbox"] {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  /* 让原生复选框跟着面板的强调色走，省得自己画一套 */
+  accent-color: #d1462f;
+  cursor: pointer;
+}
+
+/* 模式说明：中性灰，跟红色告警的 .menu-hint 区分开 */
+.menu-note {
+  margin: -2px 0 8px;
+  color: #8a6a2a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.menu-note[hidden] {
+  display: none;
+}
+
+.resume {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  border: 1px solid rgba(209, 70, 47, 0.35);
+  border-radius: 8px;
+  background: rgba(209, 70, 47, 0.08);
+  color: #b63a25;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.resume:hover {
+  background: rgba(209, 70, 47, 0.16);
+}
+
+.resume[hidden] {
+  display: none;
+}
+
+.hint {
+  margin: 0;
+  color: #9a9a9a;
+  font-size: 11px;
+}
+
+/* 台球模式下换成另一句提示，靠 hidden 切换 */
+.hint[hidden] {
+  display: none;
+}

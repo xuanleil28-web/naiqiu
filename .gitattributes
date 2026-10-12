@@ -1,0 +1,24 @@
+# 统一换行符：仓库里一律存 LF，检出时也保持 LF，
+# 免得 Windows / macOS / Linux 之间来回改一行就出现「整个文件都变了」的 diff。
+* text=auto eol=lf
+
+# 显式声明二进制文件，别让 git 去猜
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.mp3  binary
+*.wav  binary
+*.ogg  binary
+*.m4a  binary
+
+# 这些文件在 GitHub 上按各自语言高亮 / 统计
+*.ts   text
+*.js   text
+*.cjs  text
+*.json text
+*.css  text
+*.html text
+*.py   text
+*.md   text

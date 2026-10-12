@@ -1,0 +1,29 @@
+# ---- 依赖与构建产物 ----
+node_modules/
+dist/
+release/
+release_check/
+_asartest_out/
+_asartest_out2/
+*.tsbuildinfo
+
+# ---- 日志与系统文件 ----
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# ---- 编辑器 ----
+.vscode/
+.idea/
+
+# ---- 开发过程中的临时脚本与产物（不参与开源）----
+# 这几个是当初把原图平面化成贴图时的一次性处理脚本，
+# 留在这里只是方便本地复现，不属于项目本身。
+_analyze.py
+_flatten.py
+_crop.py
+_dbg.py
+_dbg2.py
+_preview.py
+_inspect/

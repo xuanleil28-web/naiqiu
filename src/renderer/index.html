@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>奶球</title>
+    <!--
+      这里刻意没有加 <meta http-equiv="Content-Security-Policy" />：
+      file:// 页面下 CSP 的 'self' 匹配不稳定，加错会让脚本直接不执行。
+      本应用不加载任何外部资源，且 contextIsolation:true / nodeIntegration:false，
+      实际攻击面为零。
+    -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <!-- 设置面板：平时 hidden，单击小球时由渲染进程展开并贴着小球定位 -->
+    <div id="menu" class="menu" hidden>
+      <div class="menu-head">
+        <span class="menu-title">小球设置</span>
+        <button id="menu-close" class="menu-close" type="button" aria-label="关闭">×</button>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label class="field-label" for="speed">速度</label>
+          <span class="field-value" id="speed-value">6.0 px/帧</span>
+        </div>
+        <input id="speed" class="slider" type="range" min="0" max="20" step="0.5" value="6" />
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label class="field-label" for="size">大小</label>
+          <span class="field-value" id="size-value">48 × 56 px</span>
+        </div>
+        <input id="size" class="slider" type="range" min="8" max="60" step="1" value="24" />
+      </div>
+
+      <button id="laugh" class="menu-action" type="button">播放笑声</button>
+      <p class="menu-hint" id="laugh-hint" hidden>
+        没找到笑声文件。把音频放到 <code>src/renderer/</code>，命名为 <code>laugh.mp3</code>
+        （也认 .wav / .ogg / .m4a），再重新构建一次。
+      </p>
+
+      <!-- 整行都能点，点文字等于点复选框 -->
+      <label class="check-row" for="billiard">
+        <input id="billiard" type="checkbox" />
+        <span>台球模式</span>
+      </label>
+      <p class="menu-note" id="billiard-hint" hidden>
+        右键呼出球杆：按住拖动瞄准，拉得越远击得越猛
+      </p>
+
+      <button id="resume" class="resume" type="button" hidden>让它动起来</button>
+      <p class="hint" id="hint">长按小球 0.1 秒即可拖拽甩出</p>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

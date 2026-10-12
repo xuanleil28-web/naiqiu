@@ -1,0 +1,108 @@
+{
+  "name": "desktop-ball",
+  "version": "1.0.0",
+  "private": true,
+  "productName": "奶球",
+  "description": "奶球 · Electron + TypeScript 桌面挂件：全屏透明置顶、鼠标穿透、可拖拽可抛掷",
+  "main": "dist/main/main.js",
+  "author": "xuanleil28-web",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xuanleil28-web/naiqiu.git"
+  },
+  "homepage": "https://github.com/xuanleil28-web/naiqiu#readme",
+  "bugs": {
+    "url": "https://github.com/xuanleil28-web/naiqiu/issues"
+  },
+  "keywords": [
+    "electron",
+    "typescript",
+    "desktop-pet",
+    "windows",
+    "desktop-widget",
+    "transparent-window",
+    "always-on-top"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.js",
+    "build": "node scripts/build.js",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "tsc -p tsconfig.renderer.json",
+    "dev": "npm run build && electron .",
+    "dev:watch": "concurrently -k -n main,renderer,app -c cyan,blue,magenta \"tsc -p tsconfig.main.json -w --preserveWatchOutput\" \"tsc -p tsconfig.renderer.json -w --preserveWatchOutput\" \"wait-on dist/main/main.js && electron .\"",
+    "start": "electron .",
+    "typecheck": "tsc -p tsconfig.json",
+    "smoke": "npm run build && node scripts/smoke-test.js",
+    "probe-icons": "node scripts/probe-desktop-icons.cjs",
+    "boot-check": "npm run build && node scripts/boot-check.js",
+    "shot": "npm run build && electron scripts/screenshot.js",
+    "pack": "npm run build && electron-builder --win --dir",
+    "dist": "npm run build && electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "concurrently": "^8.2.2",
+    "electron": "^32.2.5",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.5.4",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.workbuddy.desktopball",
+    "productName": "奶球",
+    "copyright": "Copyright © 2026 xuanleil28-web",
+    "directories": {
+      "output": "release/${version}",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "assets/**",
+      "**/*.node"
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "奶球",
+      "deleteAppDataOnUninstall": true,
+      "artifactName": "${productName}-${version}-${arch}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  },
+  "dependencies": {
+    "koffi": "^3.3.3"
+  }
+}
